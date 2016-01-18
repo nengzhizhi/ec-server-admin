@@ -69,6 +69,6 @@ module.exports = function(app){
 	// })
 
   app.get('/auth/account', function (req, res, next) {
-    console.log(res.isAuthenticated);
+    console.log(req.isAuthenticated);
   })
 }
