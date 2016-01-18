@@ -63,7 +63,12 @@ module.exports = function(app){
 		res.end('1234!');
 	});
 
-	app.get('/auth/account', ensureLoggedIn('/local'), function (req, res, next) {
-		console.log('Logged in', req.user);
-	})
+	// app.get('/auth/account', ensureLoggedIn('/local'), function (req, res, next) {
+  //    console.log(req, res);
+	// 	console.log('Logged in', req.user);
+	// })
+
+  app.get('/auth/account', function (req, res, next) {
+    console.log(res.isAuthenticated);
+  })
 }
