@@ -6,25 +6,17 @@ module.exports = function(app){
   var loopbackPassport = require('loopback-component-passport');
 	var PassportConfigurator = loopbackPassport.PassportConfigurator;
 	var passportConfigurator = new PassportConfigurator(app);
+  // // The access token is only available after boot
+  // app.middleware('auth', loopback.token({
+  //   model: app.models.accessToken
+  // }));
 
-  // to support JSON-encoded bodies
-  app.middleware('parse', bodyParser.json());
-  // to support URL-encoded bodies
-  app.middleware('parse', bodyParser.urlencoded({
-    extended: true
-  }));
-
-  // The access token is only available after boot
-  app.middleware('auth', loopback.token({
-    model: app.models.accessToken
-  }));
-
-  app.middleware('session:before', loopback.cookieParser(app.get('cookieSecret')));
-  app.middleware('session', loopback.session({
-    secret: 'kitty',
-    saveUninitialized: true,
-    resave: true
-  }));
+  // app.middleware('session:before', loopback.cookieParser(app.get('cookieSecret')));
+  // app.middleware('session', loopback.session({
+  //   secret: 'kitty',
+  //   saveUninitialized: true,
+  //   resave: true
+  // }));
   // 这样加载session中间件会导致错误
   // app.use(loopback.session({
   //   secret: 'kitty',
@@ -66,11 +58,6 @@ module.exports = function(app){
     console.log(req.isAuthenticated());
 		res.end('1234!');
 	});
-
-	// app.get('/auth/account', ensureLoggedIn('/local'), function (req, res, next) {
-  //    console.log(req, res);
-	// 	console.log('Logged in', req.user);
-	// })
 
   app.get('/auth/account', ensureLoggedIn('/local'), function (req, res, next) {
     console.log(req.isAuthenticated());

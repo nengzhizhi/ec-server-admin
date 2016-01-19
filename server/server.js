@@ -3,7 +3,23 @@ var boot = require('loopback-boot');
 var path = require('path');
 var app = module.exports = loopback();
 
-// app.use(loopback.token({ model: app.models.accessToken }));
+// to support JSON-encoded bodies
+app.middleware('parse', bodyParser.json());
+// to support URL-encoded bodies
+app.middleware('parse', bodyParser.urlencoded({
+  extended: true
+}));
+
+app.middleware('auth', loopback.token({
+  model: app.models.accessToken
+}));
+
+app.middleware('session:before', loopback.cookieParser(app.get('cookieSecret')));
+app.middleware('session', loopback.session({
+  secret: 'kitty',
+  saveUninitialized: true,
+  resave: true
+}));
 
 boot(app, __dirname);
 
