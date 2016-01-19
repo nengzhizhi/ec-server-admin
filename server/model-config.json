@@ -2,7 +2,6 @@
   "_meta": {
     "sources": [
       "../common/models",
-      "./models",
       "../node_modules/loopback-component-passport/lib/models"
     ]
   },
@@ -33,5 +32,9 @@
   "Role": {
     "dataSource": "mongodb",
     "public": false
+  },
+  "Sample": {
+    "dataSource": "db",
+    "public": true
   }
 }

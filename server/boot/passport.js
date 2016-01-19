@@ -3,28 +3,42 @@ module.exports = function(app){
   var loopback = require('loopback');
   var flash = require('express-flash');
 
+  var loopbackPassport = require('loopback-component-passport');
+	var PassportConfigurator = loopbackPassport.PassportConfigurator;
+	var passportConfigurator = new PassportConfigurator(app);
+
   // to support JSON-encoded bodies
-  app.use(bodyParser.json());
+  app.middleware('parse', bodyParser.json());
   // to support URL-encoded bodies
-  app.use(bodyParser.urlencoded({
+  app.middleware('parse', bodyParser.urlencoded({
     extended: true
   }));
 
-  //// The access token is only available after boot
-  app.use(app.loopback.token({
+  // The access token is only available after boot
+  app.middleware('auth', loopback.token({
     model: app.models.accessToken
   }));
 
-  app.use(loopback.cookieParser(app.get('cookieSecret')));
-  app.use(loopback.session({
-    secret: app.get('cookieSecret'),
+  app.middleware('session:before', loopback.cookieParser(app.get('cookieSecret')));
+  app.middleware('session', loopback.session({
+    secret: 'kitty',
     saveUninitialized: true,
     resave: true
   }));
+  // 这样加载session中间件会导致错误
+  // app.use(loopback.session({
+  //   secret: 'kitty',
+  //   saveUninitialized: true,
+  //   resave: true
+  // }));
+  passportConfigurator.init();
+
+  // We need flash messages to see passport errors
+	app.use(flash());
 
   var config = false;
   try {
-    config = require('../../providers.json');
+    config = require('../providers.json');
   } catch (err) {
     console.error(
       'Please configure your passport strategy in `providers.json`.');
@@ -32,17 +46,6 @@ module.exports = function(app){
       'Copy `providers.json.template` to `providers.json` and replace the clientID/clientSecret values with your own.'
     );
   }
-
-
-	var loopbackPassport = require('loopback-component-passport');
-	var PassportConfigurator = loopbackPassport.PassportConfigurator;
-	var passportConfigurator = new PassportConfigurator(app);  
-
-	// Initialize passport
-	passportConfigurator.init();
-
-	// We need flash messages to see passport errors
-	app.use(flash());
 
 	// Set up related models
 	passportConfigurator.setupModels({
@@ -60,6 +63,7 @@ module.exports = function(app){
 	var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 
 	app.get('/local', function(req, res, next){
+    console.log(req.isAuthenticated());
 		res.end('1234!');
 	});
 
@@ -68,7 +72,8 @@ module.exports = function(app){
 	// 	console.log('Logged in', req.user);
 	// })
 
-  app.get('/auth/account', function (req, res, next) {
-    console.log(req.isAuthenticated);
+  app.get('/auth/account', ensureLoggedIn('/local'), function (req, res, next) {
+    console.log(req.isAuthenticated());
+    res.end();
   })
 }
