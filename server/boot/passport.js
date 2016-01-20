@@ -1,5 +1,4 @@
 module.exports = function(app){
-  var bodyParser = require('body-parser');
   var loopback = require('loopback');
   var flash = require('express-flash');
 
@@ -23,7 +22,7 @@ module.exports = function(app){
   //   saveUninitialized: true,
   //   resave: true
   // }));
-  passportConfigurator.init();
+  var passport = passportConfigurator.init();
 
   // We need flash messages to see passport errors
 	app.use(flash());
@@ -53,6 +52,11 @@ module.exports = function(app){
 	}
 //-------------------------------------------------------------------------
 	var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
+
+  app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), function(req, res){
+    console.log(req.user);
+    res.end();
+  })
 
 	app.get('/local', function(req, res, next){
     console.log(req.isAuthenticated());

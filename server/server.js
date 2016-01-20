@@ -1,4 +1,5 @@
 var loopback = require('loopback');
+var bodyParser = require('body-parser');
 var boot = require('loopback-boot');
 var path = require('path');
 var app = module.exports = loopback();
