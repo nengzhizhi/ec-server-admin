@@ -5,10 +5,10 @@ module.exports = function(app){
   var loopbackPassport = require('loopback-component-passport');
 	var PassportConfigurator = loopbackPassport.PassportConfigurator;
 	var passportConfigurator = new PassportConfigurator(app);
-  // // The access token is only available after boot
-  // app.middleware('auth', loopback.token({
-  //   model: app.models.accessToken
-  // }));
+  // The access token is only available after boot
+  app.middleware('auth', loopback.token({
+    model: app.models.accessToken
+  }));
 
   // app.middleware('session:before', loopback.cookieParser(app.get('cookieSecret')));
   // app.middleware('session', loopback.session({
@@ -53,18 +53,23 @@ module.exports = function(app){
 //-------------------------------------------------------------------------
 	var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 
-  app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), function(req, res){
-    console.log(req.user);
-    res.end();
+  app.post('/auth/login', passport.authenticate('local', { failureRedirect: '/login' }), function(req, res){
+    res.send(req.user);
   })
 
-	app.get('/local', function(req, res, next){
-    console.log(req.isAuthenticated());
-		res.end('1234!');
-	});
-
-  app.get('/auth/account', ensureLoggedIn('/local'), function (req, res, next) {
-    console.log(req.isAuthenticated());
-    res.end();
+  app.post('/auth/logout', function(req, res, next){
+    req.logout();
+    res.redirect('/');
   })
+
+  app.get('/auth/current', function(req, res, next){
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      return res.status(200).json({});
+    }
+
+    var ret = JSON.parse(JSON.stringify(req.user));
+    delete ret.password;
+    res.status(200).json(ret);
+  })
+
 }
