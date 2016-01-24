@@ -22,6 +22,18 @@ app.middleware('session', loopback.session({
   resave: true
 }));
 
+
+//载入错误模板
+var errorConfig = false;
+try {
+  errorConfig = require('./errors.json');
+} catch (err) {
+  console.error('Please configure your errors in `errors.json`.');
+}
+
+app.errors = errorConfig;
+
+
 boot(app, __dirname);
 
 

@@ -55,42 +55,29 @@ module.exports = function(app){
 
   app.post('/auth/login', function(req, res, next) {
     passport.authenticate('local', function(err, user, info) {
-      if (err) { return next(err); }
-      if (!user) { return res.redirect('/login'); }
+      if (err) { return next(app.errors.auth.loginFailed); }
+      if (!user) { return next(app.errors.auth.loginFailed); }
+
       req.logIn(user, function(err) {
-        if (err) { return next(err); }
-        return res.redirect('/auth/current');
+        if (err) { return next(app.errors.auth.loginFailed); }
+        next(user)
       });
     })(req, res, next);
   });
 
-
-  // app.post('/auth/login', function(req, res, next){
-  //   passport.authenticate('local', {session: true}, function(err, user, info){
-  //     if (err) { return next(err) }
-  //     if (!user) { return next(info) }
-  //     res.status(200).json(user).end();
-  //   })(req, res, next);
-  // })
-  //
-  // // app.post('/auth/login', passport.authenticate('local', {}, function(err, user, info){
-  // //   console.log(err, user, info);
-  // // }))
-  //
-  // app.post('/auth/logout', ensureLoggedIn('/auth/login'), function(req, res, next){
-  //   req.logout();
-  //   res.redirect('/');
-  // })
-
   app.get('/auth/current', function(req, res, next){
-    console.log('/auth/current', req.user, req.isAuthenticated());
     if (!req.isAuthenticated || !req.isAuthenticated()) {
-      return res.status(200).end('');
+      return next(app.errors.auth.notLogIn);
     }
 
     var ret = JSON.parse(JSON.stringify(req.user));
     delete ret.password;
-    res.status(200).json(ret);
+    next(ret);
+  })
+
+  app.post('/auth/logout', function(req, res, next){
+    req.logOut();
+    next();
   })
 
 }

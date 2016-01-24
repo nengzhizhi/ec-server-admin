@@ -1,0 +1,12 @@
+{
+  "auth": {
+    "loginFailed": {
+      "code": 200001,
+      "detail": "账号或密码错误！"
+    },
+    "notLogIn": {
+      "code": 200002,
+      "detail": "请先登录！"
+    }
+  }
+}
